@@ -18,7 +18,11 @@ class PNRAPI:
         request_data = {}
         request_data["lccp_pnrno1"] = self.pnr
         request_data["submit"] = "Wait For PNR Enquiry!" #not required
-        r = requests.post(PNRAPI.url_pnr,request_data,headers=PNRAPI.headers)
+        try:
+            r = requests.post(PNRAPI.url_pnr,request_data,headers=PNRAPI.headers)
+        except requests.exceptions.RequestException as e:
+            self.error = str(e)
+            return False
         if r.text.find("Please try again later") > 0:
             self.error = "Service unavailable"
             return False
