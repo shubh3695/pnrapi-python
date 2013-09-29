@@ -25,10 +25,19 @@ class PNRAPI:
         elif r.text.find("FLUSHED PNR / PNR NOT YET GENERATED") > 0:
             self.error = "Wrong PNR"
             return False
-        else:
+        elif r.text.find("Facility Not Avbl due to Network Connectivity Failure") > 0:
+            self.error = "Facility not available"
+            return False
+        elif r.text.find("This is circular journey authority PNR") > 0:
+            self.error = "Circular Journey"
+            return False
+        elif r.text.find("Passenger Current Status Enquiry") > 0:
             soup = BeautifulSoup(r.text)
             self.__getDetails(soup)
             return True
+        else:
+            self.error = "Some other error"
+            return False
 
     def __getDetails(self,soup):
         #set pnr
@@ -36,8 +45,11 @@ class PNRAPI:
         #set ticket_type
         ticket_type_re = re.compile("\(.*\)")
         enq_heading = soup.find("td",{"class":"Enq_heading"}).text
-        ticket_type = str(ticket_type_re.findall(enq_heading)[0])
-        ticket_type = ticket_type.lstrip("\(").rstrip("\)")
+        if ticket_type_re.findall(enq_heading):
+            ticket_type = str(ticket_type_re.findall(enq_heading)[0])
+            ticket_type = ticket_type.lstrip("\(").rstrip("\)")
+        else :
+            ticket_type = "Unknown"
         self.response_json["ticket_type"] = ticket_type
         #get tables
         tables = soup.findAll("table",{"class":"table_border"})
