@@ -35,6 +35,9 @@ class PnrApi:
         elif r.text.find("This is circular journey authority PNR") > 0:
             self.error = "Circular Journey"
             return False
+        elif r.text.find("The Train Is Cancelled") > 0:
+            self.error = "Train cancelled"
+            return False
         elif r.text.find("Passenger Current Status Enquiry") > 0:
             soup = BeautifulSoup(r.text)
             self.__getDetails(soup)
