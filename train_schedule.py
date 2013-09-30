@@ -8,7 +8,7 @@ class TrainSchedule:
     headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0"}
     error = ""
 
-    def __init__(self,train_number, month="0", day="0", day_count="0"):
+    def __init__(self,train_number, month="1", day="1", day_count="0"):
         self.response_json = {}
         self.train_number = train_number
         self.month = month
