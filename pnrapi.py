@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
-class PNRAPI:
+class PnrApi:
 
     url_pnr = "http://www.indianrail.gov.in/cgi_bin/inet_pnrstat_cgi.cgi"
     headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0"}
@@ -19,7 +19,7 @@ class PNRAPI:
         request_data["lccp_pnrno1"] = self.pnr
         request_data["submit"] = "Wait For PNR Enquiry!" #not required
         try:
-            r = requests.post(PNRAPI.url_pnr,request_data,headers=PNRAPI.headers)
+            r = requests.post(PnrApi.url_pnr,request_data,headers=PnrApi.headers)
         except requests.exceptions.RequestException as e:
             self.error = str(e)
             return False
