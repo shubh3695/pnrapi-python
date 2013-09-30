@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
-class PNRAPI:
+class PnrApi:
 
     url_pnr = "http://www.indianrail.gov.in/cgi_bin/inet_pnrstat_cgi.cgi"
     headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0"}
@@ -18,7 +18,11 @@ class PNRAPI:
         request_data = {}
         request_data["lccp_pnrno1"] = self.pnr
         request_data["submit"] = "Wait For PNR Enquiry!" #not required
-        r = requests.post(PNRAPI.url_pnr,request_data,headers=PNRAPI.headers)
+        try:
+            r = requests.post(PnrApi.url_pnr,request_data,headers=PnrApi.headers)
+        except requests.exceptions.RequestException as e:
+            self.error = str(e)
+            return False
         if r.text.find("Please try again later") > 0:
             self.error = "Service unavailable"
             return False
@@ -30,6 +34,9 @@ class PNRAPI:
             return False
         elif r.text.find("This is circular journey authority PNR") > 0:
             self.error = "Circular Journey"
+            return False
+        elif r.text.find("The Train Is Cancelled") > 0:
+            self.error = "Train cancelled"
             return False
         elif r.text.find("Passenger Current Status Enquiry") > 0:
             soup = BeautifulSoup(r.text)
