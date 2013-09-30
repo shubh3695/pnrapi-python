@@ -81,7 +81,7 @@ class TrainSchedule:
                         schedule_object["remarks"] = str(values[9].text.strip())
                     else:
                         schedule_object["remarks"] = ""
-                schedule_array.append(schedule_object)
+                    schedule_array.append(schedule_object)
             self.response_json['schedule'] = schedule_array
 
     def get_json(self):

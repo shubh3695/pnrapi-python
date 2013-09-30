@@ -430,9 +430,6 @@ The reponse is a json object as follows:
              'distance':'2551'
           },
           {
-
-          },
-          {
              'time halt':'89:00',
              'station code':'HAPA',
              'sno':'31',
