@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+from datetime import datetime
 class PnrApi:
 
     url_pnr = "http://www.indianrail.gov.in/cgi_bin/inet_pnrstat_cgi.cgi"
@@ -69,7 +70,7 @@ class PnrApi:
         #get boarding_date
         boarding_date = str(journey_cols[2].text).split("-")
         boarding_date = boarding_date[0]+"-"+boarding_date[1].strip()+"-"+boarding_date[2]
-        self.response_json["boarding_date"] = boarding_date
+        self.response_json["boarding_date"] = datetime.strptime(boarding_date, "%d-%m-%Y")
         #get from
         self.response_json["from"] = str(journey_cols[3].text).strip()
         #get to
