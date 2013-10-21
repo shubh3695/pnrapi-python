@@ -29,7 +29,7 @@ The reponse is a json object as follows:
 		'ticket_type': 'E - TICKET',
 		'train_number': '12230'
 		'train_name': 'LUCKNOW MAIL',
-		'boarding_date': '14-3-2013',
+		'boarding_date': datetime.datetime(2013, 11, 9, 0, 0),
 		'from': 'NDLS',
 		'to': 'LKO',
 		'reserved_upto': 'LKO',
