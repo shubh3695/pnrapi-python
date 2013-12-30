@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+from random import randint
 from datetime import datetime
 class PnrApi:
 
@@ -17,6 +18,9 @@ class PnrApi:
 
     def request(self):
         request_data = {}
+	random_digit = randint(10000,99999)
+	request_data["lccp_cap_val"] = random_digit
+	request_data["lccp_capinp_val"] = random_digit
         request_data["lccp_pnrno1"] = self.pnr
         request_data["submit"] = "Wait For PNR Enquiry!" #not required
         try:
