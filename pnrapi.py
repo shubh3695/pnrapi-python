@@ -3,28 +3,34 @@ import requests
 import re
 from random import randint
 from datetime import datetime
-class PnrApi:
 
-    url_pnr = "http://www.indianrail.gov.in/cgi_bin/inet_pnrstat_cgi.cgi"
-    headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0"}
+
+class PnrApi:
+    url_pnr = "http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi.cgi"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0",
+        "Host": "www.indianrail.gov.in",
+        "Origin": "http://www.indianrail.gov.in",
+        "Referer": "http://www.indianrail.gov.in/pnr_Enq.html",
+    }
     error = ""
 
-    def __init__(self,pnr=""):
+    def __init__(self, pnr=""):
         self.response_json = {}
-        if len(pnr)!=10:
+        if len(pnr) != 10:
             raise ValueError("PNR Number has to be of 10 digits.")
         else:
             self.pnr = pnr
 
     def request(self):
         request_data = {}
-	random_digit = randint(10000,99999)
-	request_data["lccp_cap_val"] = random_digit
-	request_data["lccp_capinp_val"] = random_digit
+        random_digit = randint(10000, 99999)
+        request_data["lccp_cap_val"] = random_digit
+        request_data["lccp_capinp_val"] = random_digit
         request_data["lccp_pnrno1"] = self.pnr
-        request_data["submit"] = "Wait For PNR Enquiry!" #not required
+        request_data["submit"] = "Get Status" #not required
         try:
-            r = requests.post(PnrApi.url_pnr,request_data,headers=PnrApi.headers)
+            r = requests.post(PnrApi.url_pnr, request_data, headers=PnrApi.headers)
         except requests.exceptions.RequestException as e:
             self.error = str(e)
             return False
@@ -51,20 +57,20 @@ class PnrApi:
             self.error = "Some other error"
             return False
 
-    def __getDetails(self,soup):
+    def __getDetails(self, soup):
         #set pnr
         self.response_json["pnr"] = self.pnr
         #set ticket_type
         ticket_type_re = re.compile("\(.*\)")
-        enq_heading = soup.find("td",{"class":"Enq_heading"}).text
+        enq_heading = soup.find("td", {"class": "Enq_heading"}).text
         if ticket_type_re.findall(enq_heading):
             ticket_type = str(ticket_type_re.findall(enq_heading)[0])
             ticket_type = ticket_type.lstrip("\(").rstrip("\)")
-        else :
+        else:
             ticket_type = "Unknown"
         self.response_json["ticket_type"] = ticket_type
         #get tables
-        tables = soup.findAll("table",{"class":"table_border"})
+        tables = soup.findAll("table", {"class": "table_border"})
         #get journey_rows
         journey_cols = tables[0].findAll("tr")[2].findAll("td")
         #get train_number
@@ -73,7 +79,7 @@ class PnrApi:
         self.response_json["train_name"] = str(journey_cols[1].text).strip()
         #get boarding_date
         boarding_date = str(journey_cols[2].text).split("-")
-        boarding_date = boarding_date[0]+"-"+boarding_date[1].strip()+"-"+boarding_date[2]
+        boarding_date = boarding_date[0] + "-" + boarding_date[1].strip() + "-" + boarding_date[2]
         self.response_json["boarding_date"] = datetime.strptime(boarding_date, "%d-%m-%Y")
         #get from
         self.response_json["from"] = str(journey_cols[3].text).strip()
@@ -91,7 +97,7 @@ class PnrApi:
         totalPassengers = 0
         rows = tables[1].findAll("tr")
         rowLength = len(rows)
-        for i in range(1,rowLength):
+        for i in range(1, rowLength):
             cols = rows[i].findAll("td")
             if str(cols[0].text).split()[0] == "Passenger":
                 totalPassengers = totalPassengers + 1
@@ -99,25 +105,25 @@ class PnrApi:
                 booking_data = str(cols[1].text).split()
                 booking_status = ""
                 for element in booking_data:
-                    booking_status = booking_status+" "+element
+                    booking_status = booking_status + " " + element
                 booking_status = booking_status.strip()
                 passengerData["booking_status"] = booking_status
                 current_data = str(cols[2].text).split()
                 current_status = ""
                 for element in current_data:
-                    current_status = current_status+" "+element
+                    current_status = current_status + " " + element
                 current_status = current_status.strip()
                 passengerData["current_status"] = current_status
                 passengers.append(passengerData)
-            elif str(cols[0].text).split()[0] =="Charting":
+            elif str(cols[0].text).split()[0] == "Charting":
                 charting_data = str(cols[1].text).split()
                 charting_status = ""
                 for element in charting_data:
-                    charting_status = charting_status+" "+element
+                    charting_status = charting_status + " " + element
                 charting_status = charting_status.strip()
                 #get charting_status
                 self.response_json["charting_status"] = charting_status
-        #get total_passengers
+                #get total_passengers
         self.response_json["total_passengers"] = totalPassengers
         #get passenger_status
         self.response_json["passenger_status"] = passengers
