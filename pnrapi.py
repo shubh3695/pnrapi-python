@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 class PnrApi:
-    url_pnr = "http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi.cgi"
+    url_pnr = "http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi_28688.cgi"
     headers = {
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0",
         "Host": "www.indianrail.gov.in",
@@ -33,6 +33,9 @@ class PnrApi:
             r = requests.post(PnrApi.url_pnr, request_data, headers=PnrApi.headers)
         except requests.exceptions.RequestException as e:
             self.error = str(e)
+            return False
+        if r.status_code == 404:
+            self.error = "404 error"
             return False
         if r.text.find("Please try again later") > 0:
             self.error = "Service unavailable"
