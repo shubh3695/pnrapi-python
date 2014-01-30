@@ -35,10 +35,10 @@ class PnrApi:
             self.error = str(e)
             return False
         if r.status_code == 404:
-            self.error = "404 error"
+            self.error = "404 error, please mail contact@pnr.me to fix this issue"
             return False
         if r.text.find("Please try again later") > 0:
-            self.error = "Service unavailable"
+            self.error = "Service unavailable 23:30 to 00:30"
             return False
         elif r.text.find("FLUSHED PNR / PNR NOT YET GENERATED") > 0:
             self.error = "Wrong PNR"
