@@ -6,7 +6,7 @@ from datetime import datetime
 
 
 class PnrApi:
-    url_pnr = "http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi_28688.cgi"
+    url_pnr = "http://www.indianrail.gov.in/cgi_bin/inet_pnstat_cgi_8390.cgi"
     headers = {
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0",
         "Host": "www.indianrail.gov.in",
