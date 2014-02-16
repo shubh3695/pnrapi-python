@@ -5,6 +5,25 @@ from random import randint
 from datetime import datetime
 
 
+def get_correct_url():
+    url = "http://www.indianrail.gov.in/pnr_Enq.html"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0",
+        "Host": "www.indianrail.gov.in",
+        "Origin": "http://www.indianrail.gov.in",
+    }
+    r = requests.get(url)
+    if r.status_code == 200 :
+        #then change
+        soup = BeautifulSoup(r.text)
+        if soup.find("form"):
+            return soup.find("form")["action"]
+        else:
+            return False
+    else:
+        return False
+
+
 class PnrApi:
     url_pnr = get_correct_url()
     headers = {
@@ -135,20 +154,3 @@ class PnrApi:
         return self.response_json
 
 
-def get_correct_url():
-    url = "http://www.indianrail.gov.in/pnr_Enq.html"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0",
-        "Host": "www.indianrail.gov.in",
-        "Origin": "http://www.indianrail.gov.in",
-    }
-    r = requests.get(url)
-    if r.status_code == 200 :
-        #then change
-        soup = BeautifulSoup(r.text)
-        if soup.find("form"):
-            return soup.find("form")["action"]
-        else:
-            return False
-    else:
-        return False
