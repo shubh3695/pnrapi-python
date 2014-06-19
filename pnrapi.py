@@ -68,6 +68,9 @@ class PnrApi:
         elif r.text.find("This is circular journey authority PNR") > 0:
             self.error = "Circular Journey"
             return False
+        elif r.text.find("Invalid PNR NO") > 0:
+            self.error = "Invalid pnr number"
+            return False
         elif r.text.find("The Train Is Cancelled") > 0:
             self.error = "Train cancelled"
             return False
