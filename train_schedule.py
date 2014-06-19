@@ -4,8 +4,13 @@ import re
 
 class TrainSchedule:
 
-    url = "http://www.indianrail.gov.in/cgi_bin/inet_trnpath_cgi.cgi"
-    headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0"}
+    url = "http://www.indianrail.gov.in/cgi_bin/inet_trnnum_cgi.cgi"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0",
+        "Host": "www.indianrail.gov.in",
+        "Origin": "http://www.indianrail.gov.in",
+        "Referer": "http://www.indianrail.gov.in/train_Schedule.html}"
+    }
     error = ""
 
     def __init__(self,train_number, month="1", day="1", day_count="0"):
@@ -17,11 +22,8 @@ class TrainSchedule:
 
     def request(self):
         request_data = {}
-        request_data["lccp_submitpath"] = "Get Schedule"
-        request_data["lccp_trn_no"] = self.train_number
-        request_data["lccp_month"] = self.month
-        request_data["lccp_day"] = self.day
-        request_data["lccp_daycnt"] = self.day_count
+        request_data["getIt"] = "Get Schedule"
+        request_data["lccp_trnname"] = self.train_number
         try:
             r = requests.post(self.url,request_data,headers=self.headers)
         except requests.exceptions.RequestException as e:
