@@ -2,8 +2,8 @@ from bs4 import BeautifulSoup
 import requests
 import re
 
-class TrainSchedule:
 
+class TrainSchedule:
     url = "http://www.indianrail.gov.in/cgi_bin/inet_trnnum_cgi.cgi"
     headers = {
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:19.0) Gecko/20100101 Firefox/19.0",
@@ -13,7 +13,7 @@ class TrainSchedule:
     }
     error = ""
 
-    def __init__(self,train_number, month="1", day="1", day_count="0"):
+    def __init__(self, train_number, month="1", day="1", day_count="0"):
         self.response_json = {}
         self.train_number = train_number
         self.month = month
@@ -21,11 +21,12 @@ class TrainSchedule:
         self.day_count = day_count
 
     def request(self):
-        request_data = {}
-        request_data["getIt"] = "Get Schedule"
-        request_data["lccp_trnname"] = self.train_number
+        request_data = {
+            "getIt": "Get Schedule",
+            "lccp_trnname": self.train_number
+        }
         try:
-            r = requests.post(self.url,request_data,headers=self.headers)
+            r = requests.post(self.url, request_data, headers=self.headers)
         except requests.exceptions.RequestException as e:
             self.error = str(e)
             return False
@@ -38,53 +39,60 @@ class TrainSchedule:
         elif r.text.find("TRAIN ROUTE") > 0:
             soup = BeautifulSoup(r.text)
             self.__getDetails(soup)
-            return True
+            if self.error:
+                return False
+            else:
+                return True
         else:
             self.error = "Some other error"
             return False
 
-    def __getDetails(self,soup):
+    def __getDetails(self, soup):
         #set pnr
-        tables = soup.find_all("table",{"class":"table_border_both"})
+        tables = soup.find_all("table", {"class": "table_border_both"})
         if tables:
-            train_info = tables[0]#assumption. first four values train no, train name and source and days
-            row = train_info.find("tr",{"class" : None}).find_all("td")
-            self.response_json['train_number'] = [str(row[0].text.strip())]
-            self.response_json['train_name'] = str(row[1].text.strip())
-            self.response_json['source'] = str(row[2].text.strip())
-            days_available = []
-            for day in range(3,len(row)):
-                days_available.append(str(row[day].text.strip()))
-            self.response_json['days available'] = days_available
+            train_info = tables[0]  # assumption. first four values train no, train name and source and days
+            schedule_table = train_info.find("tr", {"class": None})
+            if schedule_table:
+                row = schedule_table.find_all("td")
+                self.response_json['train_number'] = [str(row[0].text.strip())]
+                self.response_json['train_name'] = str(row[1].text.strip())
+                self.response_json['source'] = str(row[2].text.strip())
+                days_available = []
+                for day in range(3, len(row)):
+                    days_available.append(str(row[day].text.strip()))
+                self.response_json['days available'] = days_available
 
-            #split into list of classes
-            schedule_info = tables[1]
-            schedule_rows = schedule_info.find_all("tr",{"class" : None})
-            schedule_array = []
-            for schedule in schedule_rows:
-                schedule_object = {}
-                values = schedule.find_all("td")
-                if len(values) == 1:
-                    number = re.compile('\d+')
-                    train_number = number.findall(str(values[0].text))
-                    if train_number:
-                        self.response_json['train_number'].append(train_number[0])
-                if len(values) > 8:
-                    schedule_object["sno"] = str(values[0].text.strip())
-                    schedule_object["station code"] = str(values[1].text.strip())
-                    schedule_object["station name"] = str(values[2].text.strip())
-                    schedule_object["route number"] = str(values[3].text.strip())
-                    schedule_object["arrival time"] = str(values[4].text.strip())
-                    schedule_object["departure time"] = str(values[5].text.strip())
-                    schedule_object["time halt"] = str(values[6].text.strip())
-                    schedule_object["distance"] = str(values[7].text.strip())
-                    schedule_object["day"] = str(values[8].text.strip())
-                    if len(values) > 9 :
-                        schedule_object["remarks"] = str(values[9].text.strip())
-                    else:
-                        schedule_object["remarks"] = ""
-                    schedule_array.append(schedule_object)
-            self.response_json['schedule'] = schedule_array
+                #split into list of classes
+                schedule_info = tables[1]
+                schedule_rows = schedule_info.find_all("tr", {"class": None})
+                schedule_array = []
+                for schedule in schedule_rows:
+                    schedule_object = {}
+                    values = schedule.find_all("td")
+                    if len(values) == 1:
+                        number = re.compile('\d+')
+                        train_number = number.findall(str(values[0].text))
+                        if train_number:
+                            self.response_json['train_number'].append(train_number[0])
+                    if len(values) > 8:
+                        schedule_object["sno"] = str(values[0].text.strip())
+                        schedule_object["station code"] = str(values[1].text.strip())
+                        schedule_object["station name"] = str(values[2].text.strip())
+                        schedule_object["route number"] = str(values[3].text.strip())
+                        schedule_object["arrival time"] = str(values[4].text.strip())
+                        schedule_object["departure time"] = str(values[5].text.strip())
+                        schedule_object["time halt"] = str(values[6].text.strip())
+                        schedule_object["distance"] = str(values[7].text.strip())
+                        schedule_object["day"] = str(values[8].text.strip())
+                        if len(values) > 9:
+                            schedule_object["remarks"] = str(values[9].text.strip())
+                        else:
+                            schedule_object["remarks"] = ""
+                        schedule_array.append(schedule_object)
+                self.response_json['schedule'] = schedule_array
+            else:
+                self.error = "Schedule not available"
 
     def get_json(self):
         return self.response_json
