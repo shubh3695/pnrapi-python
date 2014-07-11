@@ -60,14 +60,15 @@ def get_train_list(self, soup):
         self.response_json['trains'] = []
         for train in train_list:
             row = train.find_all("td")
-            self.response_json['trains'].append({
-                "train_number": str(row[0].text.strip()),
-                "train_name": str(row[1].text.strip()),
-                "source": str(row[2].text.strip()),
-                "departure_time": str(row[3].text.strip()),
-                "destination": str(row[4].text.strip()),
-                "arrival_time": str(row[5].text.strip())
-            })
+            if len(row) > 5:
+                self.response_json['trains'].append({
+                    "train_number": str(row[0].text.strip()),
+                    "train_name": str(row[1].text.strip()),
+                    "source": str(row[2].text.strip()),
+                    "departure_time": str(row[3].text.strip()),
+                    "destination": str(row[4].text.strip()),
+                    "arrival_time": str(row[5].text.strip())
+                })
         if len(self.response_json['trains']) == 0:
             self.error = "Train list not available"
         return self
@@ -102,6 +103,9 @@ class TrainSearch:
             return False
         elif r.text.find("Facility Not Avbl due to Network Connectivity Failure") > 0:
             self.error = "Facility not available"
+            return False
+        elif r.text.find("SORRY !!! No Matching Trains Found") > 0:
+            self.error = "No Matching trains found"
             return False
         elif r.text.find("TRAIN ROUTE") > 0:
             soup = BeautifulSoup(r.text)
