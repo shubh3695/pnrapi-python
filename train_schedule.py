@@ -106,7 +106,7 @@ class TrainSearch:
         elif r.text.find("TRAIN ROUTE") > 0:
             soup = BeautifulSoup(r.text)
             get_train_schedule(self, soup)
-            self.return_type = 'schedule'
+            self.response_json["return_type"] = "schedule"
             if self.error:
                 return False
             else:
@@ -114,7 +114,7 @@ class TrainSearch:
         elif r.text.find("Train Names with Details") > 0:
             soup = BeautifulSoup(r.text)
             get_train_list(self, soup)
-            self.return_type = 'train list'
+            self.response_json["return_type"] = "train list"
             if self.error:
                 return False
             else:
