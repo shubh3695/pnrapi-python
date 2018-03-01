@@ -153,8 +153,5 @@ class PnrApi:
         self.response_json["total_passengers"] = totalPassengers
         #get passenger_status
         self.response_json["passenger_status"] = passengers
-
     def get_json(self):
         return self.response_json
-
-
